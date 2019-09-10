@@ -113,14 +113,20 @@ def extract_feat(data_frame):
     return data_tmp
 
 
+
 operation_train = pd.read_csv(open(data_path+'operation_train_new.csv', encoding='utf8'))
 transaction_train = pd.read_csv(open(data_path+'transaction_train_new.csv', encoding='utf8'))
+
+transaction_train = transaction_train.drop(columns=['code1','code2','acc_id2','acc_id3','mac1','market_type','market_code','device_code3'])
+operation_train =operation_train.drop(columns=['ip2','ip2_sub','mac1','device_code3'])
+
 tag_train = pd.read_csv(open(data_path+'tag_train_new.csv', encoding='utf8'))
 
 operation_round1 = pd.read_csv(open(data_path+'operation_round1_new.csv', encoding='utf8'))
 transaction_round1 = pd.read_csv(open(data_path+'transaction_round1_new.csv', encoding='utf8'))
 
 action_train = operation_train.append(transaction_train).reset_index(drop=True)
+
 action_train = action_train.sort_values(by=['UID', 'day', 'time'], ascending=[True, True, True])
 action_train = action_train.merge(tag_train, on='UID')
 

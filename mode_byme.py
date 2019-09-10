@@ -10,6 +10,7 @@ import numpy as np
 from sklearn.model_selection import StratifiedKFold
 import warnings
 import lightgbm as lgb
+from sklearn.model_selection import GridSearchCV
 warnings.filterwarnings('ignore')
 
 
@@ -35,6 +36,20 @@ def eval_error(pred, train_set):
     labels = train_set.get_label()
     score = tpr_weight_function(labels, pred)
     return 'Orange', score, True
+
+
+def cv(train_, valid_):
+    pred = [k for k in train_.columns if k not in ['Tag', 'UID']]
+    train_x, train_y = train_[pred], train_['Tag']
+    
+    params_test1={'num_leaves':range(63, 103, 20)}
+    gsearch1 = GridSearchCV(estimator = lgb.LGBMClassifier(boosting_type='gbdt',objective='binary',metrics='auc',
+    learning_rate=0.01, num_boost_round=10000,bagging_fraction = 0.8,feature_fraction = 0.8,bagging_freq = 5,min_data_in_leaf= 20), 
+    param_grid = params_test1, scoring='roc_auc',cv=5,n_jobs=-1)
+    gsearch1.fit(train_x,train_y)
+    print(gsearch1.grid_scores_, gsearch1.best_params_, gsearch1.best_score_)
+
+
 
 
 def sub_on_line(train_, valid_, doc_path, is_shuffle=True):
